@@ -35,7 +35,7 @@ public class Grid : MonoBehaviour
 			{
 				Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * nodeDiameter + nodeRadius) + Vector3.forward * (y * nodeDiameter + nodeRadius); // find node's world position.
 				bool traversable = !(Physics.CheckSphere(worldPoint, nodeRadius, untraversableMask)); // collision sphere to check if the node is traversable.
-				grid[x, y] = new Node(traversable, worldPoint); // add node to grid.
+				grid[x, y] = new Node(traversable, worldPoint, x, y); // add node to grid.
 			}
 		}
 	}
@@ -51,6 +51,32 @@ public class Grid : MonoBehaviour
 		int y = Mathf.RoundToInt((gridSizeY - 1) * percentY);
 
 		return grid[x, y];
+	}
+
+	public List<Node> GetNeighbours(Node node) // get neighbour nodes of received parent node.
+	{ 
+		List<Node> neighbours = new List<Node>();
+
+		for (int x = -1; x <= 1; x++)
+		{
+			for (int y = -1; y <= 1; y++)
+			{
+				if (x == 0 && y == 0) // node is parent node and does not need to be returned.
+				{
+					continue;
+				}
+
+				int checkX = node.gridX + x;
+				int checkY = node.gridY + y;
+
+				if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
+				{
+					neighbours.Add(grid[checkX, checkY]); // add neighbour to list.
+				}
+			}
+		}
+
+		return neighbours;
 	}
 
 	void OnDrawGizmos() // draw wireframe cube around map in scene view + colour nodes for debugging.

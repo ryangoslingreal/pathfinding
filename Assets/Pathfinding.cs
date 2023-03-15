@@ -68,21 +68,25 @@ public class Pathfinding : MonoBehaviour
 		}
 	}
 
-	void RetracePath()
+	// calculate movement cost to target node by completing all movement in one direction diagonally, and leaving only movement in one direction. 
+	// direct move cost = 10.
+	// diagonal move cost = 14.
+	// formula: 14 * diagonal moves + 10 * remainging horizontal/vertical moves.
+	int GetDistance(Node nodeA, Node nodeB)
 	{
-
-	}
-
-	int GetDistance(Node nodeA, Node nodeB) // calculate cost of getting from current node to neighbour node.
-	{
-		int dstX = Mathf.Abs(nodeA.gridX - nodeB.gridX);
-		int dstY = Mathf.Abs(nodeA.gridY - nodeB.gridY);
+		int dstX = Mathf.Abs(nodeA.gridX - nodeB.gridX); // horizontal distance to target node.
+		int dstY = Mathf.Abs(nodeA.gridY - nodeB.gridY); // vertical distance to target node.
 
 		if (dstX > dstY)
 		{
-			return 14 * dstY + 10 * (dstX - dstY);
+			return 14 * dstY + 10 * (dstX - dstY); // horizontal movement done diagonally.
 		}
 
-		return 14 * dstX + 10 * (dstY - dstX);
+		return 14 * dstX + 10 * (dstY - dstX); // vertical movement done diagonally.
+	}
+
+	void RetracePath()
+	{
+
 	}
 }
