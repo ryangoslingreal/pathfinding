@@ -1,14 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 
 public class Pathfinding : MonoBehaviour
 {
+	public Transform seeker, target;
+
 	Grid grid;
 
 	void Awake()
 	{
 		grid = GetComponent<Grid>();
+	}
+
+	void Update()
+	{
+		FindPath(seeker.position, target.position); // start pathfinding.
 	}
 
 	void FindPath(Vector3 startPos, Vector3 targetPos) // find path from start node to target node.
@@ -39,7 +47,7 @@ public class Pathfinding : MonoBehaviour
 
 			if (currentNode == targetNode) // target node has been found.
 			{
-				return; // will retrace path later.
+				RetracePath(startNode, targetNode); // retrace path.
 			}
 
 			foreach (Node neighbour in grid.GetNeighbours(currentNode)) // for each neighbour of parent node.
@@ -85,8 +93,18 @@ public class Pathfinding : MonoBehaviour
 		return 14 * dstX + 10 * (dstY - dstX); // vertical movement done diagonally.
 	}
 
-	void RetracePath()
+	void RetracePath(Node startNode, Node targetNode) // work back through nodes to construct path.
 	{
-		
+		List<Node> path = new List<Node>();
+		Node currentNode = targetNode;
+
+		while (currentNode != startNode) // if path is incomplete.
+		{
+			path.Add(currentNode);
+			currentNode = currentNode.parent;
+		}
+
+		path.Reverse();
+		grid.path = path; // pass path list to Gizmos function in Grid.cs.
 	}
 }

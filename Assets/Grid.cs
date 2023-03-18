@@ -78,7 +78,7 @@ public class Grid : MonoBehaviour
 
 		return neighbours;
 	}
-
+	public List<Node> path;
 	void OnDrawGizmos() // draw wireframe cube around map in scene view + colour nodes for debugging.
 	{
 		Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, 1, gridWorldSize.y)); // wire-frame cube around map.
@@ -90,6 +90,14 @@ public class Grid : MonoBehaviour
 			foreach (Node n in grid) // for each node in array.
 			{
 				Gizmos.color = (n.traversable) ? Color.white : Color.red; // if node is traversable, draw white cube. else, draw red cube.
+
+				if (path != null) // if path isn't empty.
+				{
+					if (path.Contains(n)) // if node is in the list of path nodes.
+					{
+						Gizmos.color = Color.black;
+					}
+				}
 
 				// if node is where the player is located, draw cyan cube.
 				if (n == playerNode)
