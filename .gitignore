@@ -64,3 +64,4 @@ ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json
 ProjectSettings/ProjectSettings.asset
 UserSettings/Layouts/CurrentMaximizeLayout.dwlt
 UserSettings/Layouts/default-2023.dwlt
+*.dwlt
