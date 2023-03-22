@@ -1,26 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System;
 using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 
 public class Pathfinding : MonoBehaviour
 {
-	public Transform seeker, target;
-
+	PathRequestManager requestManager;
 	Grid grid;
 
 	void Awake()
 	{
+		requestManager = GetComponent<PathRequestManager>();
 		grid = GetComponent<Grid>();
 	}
 
-	void Update()
+	public void StartFindPath(Vector3 startPos, Vector3 targetPos)
 	{
-		FindPath(seeker.position, target.position); // start pathfinding.
+		StartCoroutine(FindPath(startPos, targetPos));
 	}
 
-	void FindPath(Vector3 startPos, Vector3 targetPos) // find path from start node to target node.
+	IEnumerator FindPath(Vector3 startPos, Vector3 targetPos) // find path from start node to target node.
 	{
+		Vector3[] waypoints = new Vector3[0];
+		bool pathSuccess = false;
+
 		Node startNode = grid.NodeFromWorldPoint(startPos); // start node from start pos.
 		Node targetNode = grid.NodeFromWorldPoint(targetPos); // target node from target pos.
 
@@ -47,7 +52,8 @@ public class Pathfinding : MonoBehaviour
 
 			if (currentNode == targetNode) // target node has been found.
 			{
-				RetracePath(startNode, targetNode); // retrace path.
+				pathSuccess = true;
+				break;
 			}
 
 			foreach (Node neighbour in grid.GetNeighbours(currentNode)) // for each neighbour of parent node.
@@ -74,6 +80,15 @@ public class Pathfinding : MonoBehaviour
 				}
 			}
 		}
+
+		yield return null;
+
+		if (pathSuccess) // if path found.
+		{
+			waypoints = RetracePath(startNode, targetNode); // retrace path.
+		}
+
+		requestManager.FinishedProcessingPath(waypoints, pathSuccess); // return waypoints array to request manager.
 	}
 
 	// calculate movement cost to target node by completing all movement in one direction diagonally, and leaving only movement in one direction. 
@@ -93,7 +108,7 @@ public class Pathfinding : MonoBehaviour
 		return 14 * dstX + 10 * (dstY - dstX); // vertical movement done diagonally.
 	}
 
-	void RetracePath(Node startNode, Node targetNode) // work back through nodes to construct path.
+	Vector3[] RetracePath(Node startNode, Node targetNode) // work back through nodes to construct path.
 	{
 		List<Node> path = new List<Node>();
 		Node currentNode = targetNode;
@@ -104,7 +119,28 @@ public class Pathfinding : MonoBehaviour
 			currentNode = currentNode.parent;
 		}
 
-		path.Reverse();
-		grid.path = path; // pass path list to Gizmos function in Grid.cs.
+		Vector3[] waypoints = SimplifyPath(path);
+		Array.Reverse(waypoints);
+		return waypoints;
+	}
+
+	Vector3[] SimplifyPath(List<Node> path)
+	{
+		List<Vector3> waypoints = new List<Vector3>();
+		Vector2 directionOld = Vector2.zero;
+
+		for (int i = 1; i < path.Count; i++) // for each node in list.
+		{
+			Vector2 directionNew = new Vector2(path[i - 1].gridX - path[i].gridX, path[i - 1].gridY - path[i].gridY); // direction of movement to get to next node.
+
+			if (directionNew != directionOld) // if direction has changed.
+			{
+				waypoints.Add(path[i].worldPos); // add position vector of new waypoint to list.
+			}
+
+			directionOld = directionNew; // reset.
+		}
+
+		return waypoints.ToArray(); // return list as array.
 	}
 }
