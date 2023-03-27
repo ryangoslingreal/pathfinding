@@ -4,6 +4,7 @@ using System.IO;
 using System;
 using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
+using System.Linq;
 
 public class Pathfinding : MonoBehaviour
 {
@@ -121,6 +122,7 @@ public class Pathfinding : MonoBehaviour
 
 		Vector3[] waypoints = SimplifyPath(path);
 		Array.Reverse(waypoints);
+		grid.path = path;
 		return waypoints;
 	}
 

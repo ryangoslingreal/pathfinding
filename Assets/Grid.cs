@@ -14,7 +14,7 @@ public class Grid : MonoBehaviour
 	float nodeDiameter;
 	int gridSizeX, gridSizeY; // number of nodes on each axis. x and y are separate since map may not be a square.
 
-	void Start()
+	void Awake()
 	{
 		nodeDiameter = nodeRadius * 2;
 		// calculate how many nodes are required in each axis.
@@ -78,6 +78,7 @@ public class Grid : MonoBehaviour
 
 		return neighbours;
 	}
+
 	public List<Node> path;
 	void OnDrawGizmos() // draw wireframe cube around map in scene view + colour nodes for debugging.
 	{
